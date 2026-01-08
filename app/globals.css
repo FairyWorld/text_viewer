@@ -22,5 +22,168 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* 优先使用系统自带的等宽字体，确保在所有平台上都能正确显示 */
 }
+
+.text-viewer, .text-viewer *{
+  font-family: 
+    /* macOS 系统字体 */
+    "SF Mono", "Monaco", "Menlo",
+    /* Windows 系统字体 */
+    "Consolas",
+    /* Linux 系统字体 */
+    "DejaVu Sans Mono", "DejaVu Sans Mono for Powerline", "Liberation Mono",
+    /* 通用系统字体 */
+    "Courier New",
+    /* CSS 等宽字体回退 */
+    monospace !important;
+}
+
+/* ANSI color styles for txt-viewer */
+.txt-viewer-content {
+  color: #e5e7eb;
+}
+
+.txt-viewer-content span[style*="color"] {
+  display: inline;
+}
+
+/* Mac风格滚动条样式 */
+.mac-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.mac-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.mac-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mac-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.2s ease;
+}
+
+.mac-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.4);
+}
+
+/* Mac风格滚动条 - 自动隐藏（不滚动时隐藏） - 只应用于预览面板 */
+/* Firefox */
+.mac-scrollbar-auto {
+  scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
+  -ms-overflow-style: -ms-autohiding-scrollbar !important; /* IE/Edge 自动隐藏 */
+}
+
+.mac-scrollbar-auto:hover {
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent !important;
+}
+
+/* WebKit 浏览器 (Chrome, Safari, Edge) - 只应用到预览面板 */
+.mac-scrollbar-auto::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.mac-scrollbar-auto::-webkit-scrollbar-track {
+  background: transparent !important;
+  border: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.mac-scrollbar-auto::-webkit-scrollbar-thumb {
+  background-color: transparent !important;
+  border-radius: 10px !important;
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+  -webkit-transition: background-color 0.2s ease !important;
+  transition: background-color 0.2s ease !important;
+  min-height: 20px !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.mac-scrollbar-auto:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.2) !important;
+}
+
+.mac-scrollbar-auto::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.4) !important;
+}
+
+.mac-scrollbar-auto::-webkit-scrollbar-thumb:active {
+  background-color: rgba(156, 163, 175, 0.5) !important;
+}
+
+/* 滚动时显示滚动条 */
+.mac-scrollbar-auto.scrolling::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3) !important;
+}
+
+.mac-scrollbar-auto.scrolling:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.4) !important;
+}
+
+/* Toast 动画 */
+@keyframes slide-in-from-top-full {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom-full {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-out-to-right-full {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+[data-state="open"] {
+  animation: slide-in-from-top-full 0.3s ease-out;
+}
+
+@media (min-width: 640px) {
+  [data-state="open"] {
+    animation: slide-in-from-bottom-full 0.3s ease-out;
+  }
+}
+
+[data-state="closed"] {
+  animation: slide-out-to-right-full 0.3s ease-out, fade-out 0.3s ease-out;
+}
+
+/* CSS Custom Highlight API 样式通过 JavaScript 动态注入，避免 PostCSS 解析错误 */
