@@ -25,9 +25,10 @@ export async function GET(request: NextRequest) {
       { status: 403 }
     );
   }
-  
+  const filePath = request.nextUrl.searchParams.get("path");
+  logger.info("filePath", filePath);
   try {
-    const filePath = request.nextUrl.searchParams.get('path');
+    
     if (!filePath) {
       logger.warn('File content request missing path parameter');
       return NextResponse.json({ error: 'Path parameter required' }, { status: 400 });

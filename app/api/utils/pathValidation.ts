@@ -1,11 +1,40 @@
 import { resolve, relative } from 'path';
+import { existsSync, statSync } from 'fs';
 
 /**
  * 获取基础路径
+ * 
+ * 逻辑：
+ * 1. 如果明确设置了 FILES_DIRECTORY 环境变量（绝对路径），使用它
+ * 2. 如果 /web_files 目录存在，使用 /web_files（Docker 挂载场景）
+ * 3. 否则使用项目中的 ./files 目录
  */
 export function getBasePath(): string {
+  // 优先级1: 如果明确设置了 FILES_DIRECTORY 环境变量（绝对路径），直接使用
+  if (process.env.FILES_DIRECTORY && resolve(process.env.FILES_DIRECTORY) === process.env.FILES_DIRECTORY) {
+    // 是绝对路径，直接使用
+    console.log('[路径检测] 使用环境变量指定的路径:', process.env.FILES_DIRECTORY);
+    return process.env.FILES_DIRECTORY;
+  }
+  
+  // 优先级2: 检测 /web_files 目录是否存在（Docker 挂载场景）
+  if (existsSync('/web_files')) {
+    try {
+      const stats = statSync('/web_files');
+      if (stats.isDirectory()) {
+        console.log('[路径检测] 检测到 /web_files 目录，使用该目录');
+        return '/web_files';
+      }
+    } catch (error) {
+      // 忽略错误，继续检查其他路径
+    }
+  }
+  
+  // 优先级3: 使用项目中的 ./files 目录
   const WATCH_DIRECTORY = process.env.FILES_DIRECTORY || './files';
-  return resolve(process.cwd(), WATCH_DIRECTORY);
+  const basePath = resolve(process.cwd(), WATCH_DIRECTORY);
+  console.log('[路径检测] 使用项目路径:', basePath);
+  return basePath;
 }
 
 /**

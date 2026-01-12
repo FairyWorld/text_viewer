@@ -1,36 +1,45 @@
-# 使用官方 Node.js 运行时作为基础镜像
-FROM node:20-alpine
+FROM node:24-alpine
 
-# 安装 pnpm 和 git（git 用于升级功能）
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# 安装 pnpm
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install -g pnpm@latest && \
+    corepack enable
+
 RUN apk add --no-cache git
 
-# 设置工作目录
 WORKDIR /app
 
-# 设置环境变量
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-ENV LOG_DIR=/app/logs
+ENV PROJECT_NAME=text_viewer
+ENV GIT_REPO_URL=https://githubfast.com/FairyWorld/text_viewer.git
+ENV GIT_BRANCH=main
 
-# 复制 package 文件
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN printf '#!/bin/sh\n\
+set -e\n\
+PROJECT_DIR="/app/${PROJECT_NAME}"\n\
+\n\
+if [ ! -d "$PROJECT_DIR/.git" ]; then\n\
+  if [ -d "$PROJECT_DIR" ]; then\n\
+    rm -rf "$PROJECT_DIR"\n\
+  fi\n\
+  git clone --branch "${GIT_BRANCH:-main}" --depth 1 "${GIT_REPO_URL}" "$PROJECT_DIR" || {\n\
+    echo "Error: Failed to clone repository"\n\
+    exit 1\n\
+  }\n\
+fi\n\
+# 确保 scripts 目录下的脚本有可执行权限\n\
+if [ -d "$PROJECT_DIR/scripts" ]; then\n\
+  chmod +x "$PROJECT_DIR/scripts"/*.sh 2>/dev/null || true\n\
+fi\n\
+if [ -f "$PROJECT_DIR/scripts/docker-entrypoint.sh" ]; then\n\
+  exec sh "$PROJECT_DIR/scripts/docker-entrypoint.sh" "$@"\n\
+else\n\
+  echo "Error: docker-entrypoint.sh not found at $PROJECT_DIR/scripts/docker-entrypoint.sh"\n\
+  exit 1\n\
+fi\n\
+' > /usr/local/bin/clone-and-run.sh && chmod +x /usr/local/bin/clone-and-run.sh
 
-# 安装依赖
-RUN pnpm install --frozen-lockfile --prod=false
+EXPOSE 3100 3200
 
-# 复制启动脚本
-COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# 暴露端口
-EXPOSE 3000
-
-# 使用启动脚本作为入口点
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
-# 默认命令（可以在 docker-compose 中覆盖）
-# 注意：代码目录通过 volume 挂载，所以不需要复制代码
-CMD ["pnpm", "dev"]
+CMD ["/usr/local/bin/clone-and-run.sh", "sh", "-c", "cd /app/${PROJECT_NAME} && pnpm start"]

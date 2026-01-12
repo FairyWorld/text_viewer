@@ -68,7 +68,7 @@ export function useServerModeFileOperations({
         } else {
           fullFilePath = fileItem.path;
         }
-
+        console.log("fullFilePath", fullFilePath);
         // 从API加载文件内容
         const response = await fetch(
           `/api/file-content?path=${encodeURIComponent(fullFilePath)}`

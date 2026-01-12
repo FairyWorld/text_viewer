@@ -3,8 +3,8 @@ import "./globals.css";
 import "./startup";
 
 export const metadata: Metadata = {
-  title: "Log Viewer",
-  description: "Log file viewer with authentication",
+  title: "Text Viewer",
+  description: "Text Viewer",
 };
 
 export default function RootLayout({

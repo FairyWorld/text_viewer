@@ -3,10 +3,6 @@ import type { NextRequest } from "next/server";
 import { verifySessionSignature } from "@/app/viewer/utils/auth";
 import { authConfig } from "@/config/auth";
 
-/**
- * 认证代理（原 middleware）
- * 保护需要认证的路由
- */
 export async function proxy(request: NextRequest) {
   const startTime = Date.now();
   const pathname = request.nextUrl.pathname;
@@ -16,11 +12,9 @@ export async function proxy(request: NextRequest) {
     request.headers.get("x-real-ip") ||
     "unknown";
 
-  // 如果认证被禁用，直接通过
   if (!authConfig.enabled) {
     const response = NextResponse.next();
     const duration = Date.now() - startTime;
-    // Proxy 直接使用 console（Edge Runtime 不支持文件日志）
     console.log(`[API ${method}] ${pathname}`, {
       statusCode: 200,
       duration: `${duration}ms`,
@@ -36,7 +30,6 @@ export async function proxy(request: NextRequest) {
   if (publicPaths.some((path) => pathname.startsWith(path))) {
     const response = NextResponse.next();
     const duration = Date.now() - startTime;
-    // Proxy 直接使用 console（Edge Runtime 不支持文件日志）
     console.log(`[API ${method}] ${pathname}`, {
       statusCode: 200,
       duration: `${duration}ms`,
@@ -56,20 +49,17 @@ export async function proxy(request: NextRequest) {
         { error: "Unauthorized", message: "Please login first" },
         { status: 401 }
       );
-      // Proxy 直接使用 console（Edge Runtime 不支持文件日志）
-      console.warn(`[API ${method}] ${pathname}`, {
+      console.error(`[API ${method}] ${pathname}`, {
         statusCode: 401,
         duration: `${duration}ms`,
         ip,
       });
       return response;
     }
-    // 否则重定向到登录页
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     const response = NextResponse.redirect(loginUrl);
-    // Proxy 直接使用 console（Edge Runtime 不支持文件日志）
-    console.log(`[API ${method}] ${pathname}`, {
+    console.error(`[API ${method}] ${pathname}`, {
       statusCode: 302,
       duration: `${duration}ms`,
       ip,
@@ -82,15 +72,13 @@ export async function proxy(request: NextRequest) {
 
   if (!token) {
     const duration = Date.now() - startTime;
-    // Session 无效，清除 cookie 并重定向
     if (pathname.startsWith("/api/")) {
       const response = NextResponse.json(
         { error: "Unauthorized", message: "Invalid session" },
         { status: 401 }
       );
       response.cookies.delete(authConfig.sessionCookieName);
-      // Proxy 直接使用 console（Edge Runtime 不支持文件日志）
-      console.warn(`[API ${method}] ${pathname}`, {
+      console.error(`[API ${method}] ${pathname}`, {
         statusCode: 401,
         duration: `${duration}ms`,
         ip,
@@ -102,8 +90,7 @@ export async function proxy(request: NextRequest) {
     loginUrl.searchParams.set("redirect", pathname);
     const response = NextResponse.redirect(loginUrl);
     response.cookies.delete(authConfig.sessionCookieName);
-    // Proxy 直接使用 console（Edge Runtime 不支持文件日志）
-    console.log(`[API ${method}] ${pathname}`, {
+    console.error(`[API ${method}] ${pathname}`, {
       statusCode: 302,
       duration: `${duration}ms`,
       ip,
@@ -114,7 +101,6 @@ export async function proxy(request: NextRequest) {
   // 认证通过
   const response = NextResponse.next();
   const duration = Date.now() - startTime;
-  // Proxy 直接使用 console（Edge Runtime 不支持文件日志）
   console.log(`[API ${method}] ${pathname}`, {
     statusCode: 200,
     duration: `${duration}ms`,

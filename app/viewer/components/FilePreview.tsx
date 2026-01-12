@@ -127,6 +127,7 @@ export function FilePreview({
           ref={contentRef}
           className="font-mono text-sm whitespace-pre"
           dangerouslySetInnerHTML={renderContent(selectedFile.content)}
+          suppressHydrationWarning
           style={{
             minHeight: "100%",
             lineHeight: "1.2",

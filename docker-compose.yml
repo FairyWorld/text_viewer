@@ -1,52 +1,24 @@
-version: "3.8"
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: log-viewer
+    container_name: text-viewer
     ports:
-      - "3000:3000"
+      - "3200:3200"
+      - "3100:3100"
     volumes:
-      # 挂载代码目录（支持内部升级）
-      - .:/app
-      # 挂载文件目录（只读）- 服务模式只能访问此目录
-      - ./files:/app/files:ro
-      # 挂载日志目录（应用日志输出）
-      - ./logs:/app/logs
-      # 排除 node_modules（使用容器内的）
-      - /app/node_modules
+      - ./files:/web_files:ro
     environment:
-      # 认证配置
-      - ACCESS_PASSWORD=${ACCESS_PASSWORD:-default_password}
-      - SESSION_SECRET=${SESSION_SECRET:-change-me-in-production}
-      - PASSWORD_HASH=${PASSWORD_HASH:-}
+      - ACCESS_PASSWORD=${ACCESS_PASSWORD:-666666}
+      - SESSION_SECRET=${SESSION_SECRET:-f379eaf3c831b04de153469d1bec345e}
       - AUTH_ENABLED=${AUTH_ENABLED:-true}
-      # 文件系统配置
-      - FILES_DIRECTORY=/app/files
-      - ENABLE_LOCAL_FS=true
-      - NODE_ENV=production
-      # 日志配置
-      - LOG_DIR=/app/logs
+      - ENABLE_LOCAL_FS=${ENABLE_LOCAL_FS:-true}
+      - COOKIE_SECURE=${COOKIE_SECURE:-false}
       - LOG_LEVEL=${LOG_LEVEL:-info}
-    # 自动重启策略
+      - NODE_ENV=${NODE_ENV:-production}
+      - PROJECT_NAME=${PROJECT_NAME:-text_viewer}
+      - GIT_REPO_URL=${GIT_REPO_URL}
+      - GIT_BRANCH=${GIT_BRANCH:-main}
+      - PNPM_REGISTRY=${PNPM_REGISTRY:-https://registry.npmmirror.com}
     restart: unless-stopped
-    # 健康检查（可选）
-    # healthcheck:
-    #   test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/auth/status"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
-    # 资源限制（可选）
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '2'
-    #       memory: 1G
-    #     reservations:
-    #       cpus: '0.5'
-    #       memory: 512M
-    # 如果需要，可以指定命令
-    # command: pnpm start

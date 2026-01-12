@@ -6,6 +6,7 @@ import {
   Tree,
   TreeItem,
   TreeItemIndex,
+  InteractionMode,
 } from "react-complex-tree";
 import "react-complex-tree/lib/style-modern.css";
 import { TreeNode, FileItem } from "../types";
@@ -192,7 +193,7 @@ export function FileTree({
           "file-tree": {
             expandedItems,
             selectedItems,
-            focusedItem: selectedItems[0] || null,
+            focusedItem: selectedItems[0],
           },
         }}
         getItemTitle={getItemTitle}
@@ -200,7 +201,7 @@ export function FileTree({
         onExpandItem={handleExpandItem}
         onCollapseItem={handleCollapseItem}
         renderItemTitle={renderItemTitle}
-        defaultInteractionMode="click-item-to-expand"
+        defaultInteractionMode={InteractionMode.ClickItemToExpand}
       >
         <Tree treeId="file-tree" rootItem="root" treeLabel="文件树" />
       </ControlledTreeEnvironment>

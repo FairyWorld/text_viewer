@@ -34,6 +34,17 @@ export default function TxtViewer() {
   } = useServerMode();
   const { mode, setMode, serverDirectory, setServerDirectory, isMounted } =
     useModeManager();
+  
+  // 客户端检测：浏览器是否支持 File System Access API
+  // 使用 useState + useEffect 避免 hydration 错误
+  const [supportsFSA, setSupportsFSA] = useState<boolean | null>(null);
+  
+  useEffect(() => {
+    // 只在客户端执行
+    setSupportsFSA(
+      typeof window !== "undefined" && "showDirectoryPicker" in window
+    );
+  }, []);
 
   // 输出服务端模式状态到控制台
   useEffect(() => {
@@ -468,7 +479,7 @@ export default function TxtViewer() {
           <div className="p-4 border-b border-gray-700">
             <div className="flex items-center justify-between mb-3">
               <h1 className="text-lg font-semibold text-gray-200">
-                Log Viewer
+                Viewer
               </h1>
               <button
                 onClick={logout}
@@ -527,8 +538,7 @@ export default function TxtViewer() {
                     : "请选择文本文件"}
                 </span>
                 {mode === "fsa" &&
-                  typeof window !== "undefined" &&
-                  !("showDirectoryPicker" in window) && (
+                  supportsFSA === false && (
                     <div className="mt-2 text-xs text-yellow-400">
                       您的浏览器不支持 File System Access API
                     </div>

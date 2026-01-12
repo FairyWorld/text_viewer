@@ -24,14 +24,14 @@ export async function GET(request: NextRequest) {
   };
   
   // 服务器端日志
-  console.log('\n=== 服务端模式状态检测 ===');
-  console.log(`环境: ${status.environment}`);
-  console.log(`主机名: ${status.hostname}`);
-  console.log(`ENABLE_LOCAL_FS: ${status.enableLocalFS || '(未设置)'}`);
-  console.log(`FILES_DIRECTORY: ${status.filesDirectory}`);
-  console.log(`可用状态: ${allowed ? '✅ 可用' : '❌ 不可用'}`);
-  console.log(`可信度: ${confidence}`);
-  console.log('环境检测原因:');
+  // console.log('\n=== 服务端模式状态检测 ===');
+  // console.log(`环境: ${status.environment}`);
+  // console.log(`主机名: ${status.hostname}`);
+  // console.log(`ENABLE_LOCAL_FS: ${status.enableLocalFS || '(未设置)'}`);
+  // console.log(`FILES_DIRECTORY: ${status.filesDirectory}`);
+  // console.log(`可用状态: ${allowed ? '✅ 可用' : '❌ 不可用'}`);
+  // console.log(`可信度: ${confidence}`);
+  // console.log('环境检测原因:');
   envCheck.reasons.forEach((reason, i) => {
     console.log(`  ${i + 1}. ${reason}`);
   });

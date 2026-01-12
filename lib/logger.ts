@@ -17,7 +17,19 @@ let DOCKER_LOG_FILE: string;
 
 function initLogPaths() {
   // 使用环境变量或当前工作目录
-  LOG_DIR = process.env.LOG_DIR || path.join(process.cwd(), "logs");
+  // 如果 LOG_DIR 未设置，尝试使用 config 同级目录
+  if (!process.env.LOG_DIR) {
+    // 检查是否有 config 目录，如果有，使用 config 同级目录的 logs
+    const configPath = path.join(process.cwd(), "config");
+    if (fs.existsSync(configPath)) {
+      LOG_DIR = path.join(process.cwd(), "logs");
+    } else {
+      LOG_DIR = path.join(process.cwd(), "logs");
+    }
+  } else {
+    LOG_DIR = process.env.LOG_DIR;
+  }
+
   APP_LOG_FILE = path.join(LOG_DIR, "app.log");
   ERROR_LOG_FILE = path.join(LOG_DIR, "error.log");
   DOCKER_LOG_FILE = path.join(LOG_DIR, "docker.log");
@@ -131,7 +143,7 @@ export const dockerLogger = createDockerLogger();
 export function logDockerStart() {
   dockerLogger.info("Docker container starting...", {
     nodeEnv: process.env.NODE_ENV,
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3100,
     filesDirectory: process.env.FILES_DIRECTORY,
     enableLocalFS: process.env.ENABLE_LOCAL_FS,
     authEnabled: process.env.AUTH_ENABLED !== "false",
